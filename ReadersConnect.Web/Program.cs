@@ -69,7 +69,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseSerilogRequestLogging();
-    ApplyDatabaseInitializer();
+    await ApplyDatabaseInitializerAsync();
 
     app.UseCors("AllowOrigin");
 
@@ -80,12 +80,13 @@ try
 
     app.Run();
 
-    void ApplyDatabaseInitializer()
+    async Task ApplyDatabaseInitializerAsync()
     {
         using (var scope = app.Services.CreateScope())
         {
             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             dbInitializer.InitializeDatabase();
+            await dbInitializer.SeedSuperAdminUserAsync();
         }
     }
 }

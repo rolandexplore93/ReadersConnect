@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReadersConnect.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using ReadersConnect.Infrastructure.Persistence;
 namespace ReadersConnect.Infrastructure.Migrations
 {
     [DbContext(typeof(CoreApplicationContext))]
-    partial class CoreApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20241111184733_UpdateAppUserFields")]
+    partial class UpdateAppUserFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
