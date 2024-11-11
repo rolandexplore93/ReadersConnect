@@ -1,0 +1,6 @@
+@ReadersConnect_HostAddress = https://localhost:5005
+
+GET {{ReadersConnect_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
