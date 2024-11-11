@@ -12,5 +12,21 @@ using System.Threading.Tasks;
 
 namespace ReadersConnect.Infrastructure.DbInitializer
 {
-    
+    public class DbInitializer : IDbInitializer
+    {
+        private readonly CoreApplicationContext _coreApplicationContext;
+
+        public DbInitializer(CoreApplicationContext coreApplicationContext)
+        {
+            _coreApplicationContext = coreApplicationContext;
+        }
+        public void InitializeDatabase()
+        {
+            // check for pending migrations to db and apply the migrations if they are not yet applied
+            if (_coreApplicationContext.Database.GetPendingMigrations().Count() > 0)
+            {
+                _coreApplicationContext.Database.Migrate();
+            }
+        }
+    }
 }

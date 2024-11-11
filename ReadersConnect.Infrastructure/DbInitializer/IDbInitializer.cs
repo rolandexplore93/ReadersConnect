@@ -8,6 +8,6 @@ namespace ReadersConnect.Infrastructure.DbInitializer
 {
     public interface IDbInitializer
     {
-        
+        void InitializeDatabase();
     }
 }

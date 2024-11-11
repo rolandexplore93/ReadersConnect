@@ -61,7 +61,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
 }
 
 app.UseHttpsRedirection();
-//await ApplyDatabaseInitializerAsync();
+ApplyDatabaseInitializer();
 
 app.UseCors("AllowOrigin");
 
@@ -72,11 +72,11 @@ app.MapControllers();
 
 app.Run();
 
-//async Task ApplyDatabaseInitializerAsync()
-//{
-//    using (var scope = app.Services.CreateScope())
-//    {
-//        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-//        await dbInitializer.InitializeDatabaseAsync();
-//    }
-//}
+void ApplyDatabaseInitializer()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.InitializeDatabase();
+    }
+}

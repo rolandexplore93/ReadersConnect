@@ -3,6 +3,7 @@ using ReadersConnect.Domain.Models.Identity;
 using ReadersConnect.Infrastructure.Persistence;
  using ReadersConnect.Infrastructure.UnitOfWork;
 using ReadersConnect.Application.BaseInterfaces.IUnitOfWork;
+using ReadersConnect.Infrastructure.DbInitializer;
 
 namespace ReadersConnect.Web.Extensions
 {
@@ -21,7 +22,7 @@ namespace ReadersConnect.Web.Extensions
 
 
             // Add Repository Injections Here
-            //services.AddSingleton<IDbInitializer, DbInitializer>();
+            services.AddScoped<IDbInitializer, DbInitializer>();
             services.AddScoped<IUnitOfWork, UnitOfWork<CoreApplicationContext>>();
 
             // Add Fluent Validator Injections Here
