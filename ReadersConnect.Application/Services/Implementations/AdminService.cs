@@ -30,5 +30,7 @@ namespace ReadersConnect.Application.Services.Implementations
         {
             throw new NotImplementedException();
         }
+
+        
     }
 }
