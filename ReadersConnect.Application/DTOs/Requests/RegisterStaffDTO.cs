@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReadersConnect.Application.Dtos
+namespace ReadersConnect.Application.DTOs.Requests
 {
-    public class CreateRoleDto
+    public class RegisterStaffDTO
     {
         [Required]
-        public string RoleName { get; set; }
-        public List<string>? Permissions { get; set; }
+        public string Username { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

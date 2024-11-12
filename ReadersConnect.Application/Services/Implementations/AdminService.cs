@@ -1,5 +1,4 @@
 ﻿using ReadersConnect.Application.BaseInterfaces.IUnitOfWork;
-using ReadersConnect.Application.Dtos;
 using ReadersConnect.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -7,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ReadersConnect.Application.DTOs.Responses;
+using ReadersConnect.Application.DTOs.Requests;
 
 namespace ReadersConnect.Application.Services.Implementations
 {
@@ -21,15 +22,16 @@ namespace ReadersConnect.Application.Services.Implementations
             _roleManager = roleManager;
         }
 
-        public Task<APIResponse<string>> CreatePermissionAsync(CreatePermissionDto permissionDto)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<APIResponse<string>> CreatePermissionAsync(CreatePermissionDto permissionDto)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public Task<APIResponse<string>> CreateRoleAsync(CreateRoleDto roleDto)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<APIResponse<string>> CreateRoleAsync(CreateRoleDto roleDto)
+        //{
+        //    //throw new NotImplementedException();
+        //    return Console.WriteLine("sss");
+        //}
 
         
     }

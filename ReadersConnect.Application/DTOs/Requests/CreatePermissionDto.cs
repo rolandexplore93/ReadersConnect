@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReadersConnect.Application.Dtos
+namespace ReadersConnect.Application.DTOs.Requests
 {
     public class CreatePermissionDto
     {

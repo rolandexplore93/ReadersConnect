@@ -4,6 +4,7 @@ using Newtonsoft.Json.Converters;
 using ReadersConnect.Application.Automapper;
 using ReadersConnect.Application.Helpers.Common;
 using ReadersConnect.Infrastructure.DbInitializer;
+using ReadersConnect.Infrastructure.ExternalServiceExtensions;
 using ReadersConnect.Infrastructure.Persistence;
 using ReadersConnect.Web.Extensions;
 using ReadersConnect.Web.Extensions.Middlewares;
@@ -40,6 +41,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 builder.Services.AddSwaggerGen();
+builder.Services.AddJwtAuthentication(configuration);
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.Converters.Add(new StringEnumConverter());

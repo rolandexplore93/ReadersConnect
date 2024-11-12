@@ -4,6 +4,9 @@ using ReadersConnect.Infrastructure.Persistence;
  using ReadersConnect.Infrastructure.UnitOfWork;
 using ReadersConnect.Application.BaseInterfaces.IUnitOfWork;
 using ReadersConnect.Infrastructure.DbInitializer;
+using ReadersConnect.Application.Services.Interfaces;
+using ReadersConnect.Application.Services.Implementations;
+using ReadersConnect.Infrastructure.BaseRepository.Implementations;
 
 namespace ReadersConnect.Web.Extensions
 {
@@ -17,7 +20,8 @@ namespace ReadersConnect.Web.Extensions
                 .AddDefaultTokenProviders();
 
             // Add Service Injections Here
-            //services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
             //services.AddScoped<IAdminService, AdminService>();
 
 

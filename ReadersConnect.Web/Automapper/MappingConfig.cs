@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ReadersConnect.Application.Dtos;
+using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Domain.Models;
 using ReadersConnect.Domain.Models.Identity;
 using ReadersConnect.Web.Dtos;

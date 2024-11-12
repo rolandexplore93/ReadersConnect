@@ -43,16 +43,6 @@ namespace ReadersConnect.Web.Extensions
                         errorNumbersToAdd: null);
                     sqlOptions.MigrationsAssembly("ReadersConnect.Infrastructure");
                 });
-
-                // PostgreSQL connection
-                //options.UseNpgsql(connStr, npgsqlOptionsAction: npgsqlOptions =>
-                //{
-                //    npgsqlOptions.EnableRetryOnFailure(
-                //        maxRetryCount: 15,
-                //        maxRetryDelay: TimeSpan.FromSeconds(30),
-                //        errorCodesToAdd: null);
-                //    npgsqlOptions.MigrationsAssembly("ReadersConnect.Infrastructure");
-                //});
             });
         }
     }

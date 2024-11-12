@@ -4,6 +4,11 @@ namespace ReadersConnect.Application.BaseInterfaces.Abstractions
 {
     public interface IRepositoryBase<T> where T : class
     {
-        Task<List<T>> GetAllAsync();
+        Task<T> GetSingleAsync(Expression<Func<T, bool>> expression);
+        IQueryable<T> GetAll(Expression<Func<T, bool>> expression);
+        Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> expression);
+        bool Any();
+        long Count(Expression<Func<T, bool>> expression);
+        Task<int> SaveChangesAsync();
     }
 }

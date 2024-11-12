@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace ReadersConnect.Application.Services.Interfaces
 {
-    public interface IAdminService
+    public interface IAuthService
     {
-        //Task<APIResponse<string>> CreateRoleAsync(CreateRoleDto roleDto);
-        //Task<APIResponse<string>> CreatePermissionAsync(CreatePermissionDto permissionDto);
+        Task<APIResponse<LoginTokenDTO>> LoginAsync(LoginRequestDTO requestDTO);
     }
 }

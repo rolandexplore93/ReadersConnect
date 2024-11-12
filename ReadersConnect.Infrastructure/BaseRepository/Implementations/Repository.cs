@@ -17,9 +17,53 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
             _dbSet = DbContext.Set<T>();
         }
 
-        public Task<List<T>> GetAllAsync()
+        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression)
         {
-            throw new NotImplementedException();
+            return await GetAll(expression).FirstOrDefaultAsync();
         }
+        public IQueryable<T> GetAll(Expression<Func<T, bool>> expression)
+        {
+            return _dbSet.Where(expression);
+        }
+
+        public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _dbSet.Where(expression).ToListAsync();
+        }
+
+        #region AddEntity
+        public bool Any()
+        {
+            return DbContext.Set<T>().Any();
+        }
+
+        #endregion
+
+        public void Dispose()
+        {
+            DbContext?.Dispose();
+        }
+
+        public long Count(Expression<Func<T, bool>> expression)
+        {
+            return DbContext.Set<T>().LongCount(expression);
+        }
+        public Task<int> SaveChangesAsync()
+        {
+            var entries = DbContext.ChangeTracker.Entries()
+                .Where(e => e.Entity is BaseEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntries in entries)
+            {
+                ((BaseEntity)entityEntries.Entity).ModifiedAt = DateTime.UtcNow;
+                if (entityEntries.State == EntityState.Added)
+                {
+                    ((BaseEntity)entityEntries.Entity).CreatedAt = DateTime.UtcNow;
+                }
+            }
+            DbContext.Entry(entries).State = EntityState.Detached;
+            return DbContext.SaveChangesAsync();
+        }
+
     }
 }
