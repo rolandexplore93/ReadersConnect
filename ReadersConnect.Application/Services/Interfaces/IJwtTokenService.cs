@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReadersConnect.Application.Services.Implementations
+namespace ReadersConnect.Application.Services.Interfaces
 {
     public interface IJwtTokenService
     {
         Task<string> GenerateTokenAsync(ApplicationUser user, string tokenId);
-        bool ValidateToken(string token);
+        //bool ValidateToken(string token);
     }
 }

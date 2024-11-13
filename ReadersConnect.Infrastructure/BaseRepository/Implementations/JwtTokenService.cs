@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Application.Helpers.Configuration;
-using ReadersConnect.Application.Services.Implementations;
+using ReadersConnect.Application.Services.Interfaces;
 using ReadersConnect.Domain.Models.Identity;
 using System;
 using System.Collections.Generic;
@@ -21,67 +22,79 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private string? _secretKey;
         private string? _Issuer;
-        private string? _Audience;
+        //private string? _Audience;
 
         public JwtTokenService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
             _configuration = configuration;
             _userManager = userManager;
+            //_secretKey = _configuration.GetValue<string>("Jwt:SigningKey");
             _secretKey = _configuration.GetValue<string>("JWTsettings:Secret");
-            _Issuer = _configuration.GetValue<string>("JWTsettings:ValidIssuer");
-            _Audience = _configuration.GetValue<string>("JWTsettings:ValidAudience");
+            
+            //_Issuer = _configuration.GetValue<string>("Jwt:Issuer");
+            //_Audience = _configuration.GetValue<string>("Jwt:ValidAudience");
         }
         public async Task<string> GenerateTokenAsync(ApplicationUser user, string jwtTokenId)
         {
             // If user is found, generate login token with JwtSecurityTokenHandler
             var roles = await _userManager.GetRolesAsync(user);
 
-            // JWTHandler requires the secret key which must be in byte. So, convert the secretKey from string to byte
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            if (roles.Any())
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                    new Claim(ClaimTypes.Role, roles.FirstOrDefault()),
-                    new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
-                Issuer = _Issuer,
-                Audience = _Audience,
-                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-            return tokenString;
-        }
-
-        public bool ValidateToken(string token)
+                var claims = new List<Claim>
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey); ;
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
+            new Claim(ClaimTypes.Name, user.UserName.ToString()),
+        };
 
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = _Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _Audience,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
+                // Add all roles as claims
+                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-                return validatedToken != null;
+                // Key and credentials for signing
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                // Create the token
+                var token = new JwtSecurityToken(
+                    issuer: "https://readersconnect-api.com",  // Ensure this matches the configuration
+                    audience: "https://test-readersconnect-api.com",  // Ensure this matches the configuration
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddMinutes(60),
+                    signingCredentials: creds
+                );
+
+                return new JwtSecurityTokenHandler().WriteToken(token);
             }
-            catch
-            {
-                return false;
-            }
+
+            return string.Empty;
+
         }
+
+        //public bool ValidateToken(string token)
+        //{
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    var key = Encoding.ASCII.GetBytes(_secretKey); ;
+
+        //    try
+        //    {
+        //        tokenHandler.ValidateToken(token, new TokenValidationParameters
+        //        {
+        //            ValidateIssuerSigningKey = true,
+        //            IssuerSigningKey = new SymmetricSecurityKey(key),
+        //            ValidateIssuer = true,
+        //            ValidIssuer = _Issuer,
+        //            ValidateAudience = true,
+        //            ValidAudience = _Audience,
+        //            ClockSkew = TimeSpan.Zero
+        //        }, out SecurityToken validatedToken);
+
+        //        return validatedToken != null;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
     }
 }

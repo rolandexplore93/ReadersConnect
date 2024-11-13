@@ -56,6 +56,11 @@ namespace ReadersConnect.Application.Services.Implementations
                 var tokenId = $"JTI{Guid.NewGuid()}";
                 string token = await _jwtTokenService.GenerateTokenAsync(user, tokenId);
 
+                if (string.IsNullOrEmpty(token))
+                {
+                    return APIResponse<LoginTokenDTO>.FailedResult("Login failed... Contact Admin to assign role to your account.", HttpStatusCode.BadRequest);
+                }
+
                 _logger.LogInformation("Login successful.");
                 LoginTokenDTO loginToken = new LoginTokenDTO() { AccessToken = token };
                 return APIResponse<LoginTokenDTO>.SuccessResult(loginToken, "Request successful.");

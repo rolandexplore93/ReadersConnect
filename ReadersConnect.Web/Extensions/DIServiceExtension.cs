@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ReadersConnect.Domain.Models.Identity;
 using ReadersConnect.Infrastructure.Persistence;
- using ReadersConnect.Infrastructure.UnitOfWork;
+using ReadersConnect.Infrastructure.UnitOfWork;
 using ReadersConnect.Application.BaseInterfaces.IUnitOfWork;
 using ReadersConnect.Infrastructure.DbInitializer;
 using ReadersConnect.Application.Services.Interfaces;
@@ -22,6 +22,7 @@ namespace ReadersConnect.Web.Extensions
             // Add Service Injections Here
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IAdminService, AdminService>();
 
 

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ReadersConnect.Application.DTOs.Requests
 {
-    public class CreatePermissionDto
+    public class CreateRoleRequestDto
     {
         [Required]
-        public string PermissionName { get; set; }
+        public string RoleName { get; set; }
     }
 }

@@ -13,6 +13,14 @@ namespace ReadersConnect.Application.Helpers.Configuration
     public class JwtConfig
     {
         public const string Position = "Jwt";
-        public string SwaggerKey { get; set; }
+        public string SwaggerKey { get; set; } = "123456";
+    }
+
+    public class JwtSettings
+    {
+        public string? Site { get; set; }
+        public string? SigningKey { get; set; }
+        public string? ExpiryInMinutes { get; set; }
+        public string? Issuer { get; set; }
     }
 }

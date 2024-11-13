@@ -17,6 +17,7 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
             _dbSet = DbContext.Set<T>();
         }
 
+        #region GetEntity
         public async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression)
         {
             return await GetAll(expression).FirstOrDefaultAsync();
@@ -30,11 +31,21 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
         {
             return await _dbSet.Where(expression).ToListAsync();
         }
+        public async Task<IReadOnlyList<T>> GetAllAsync()
+        {
+            return await _dbSet.ToListAsync();
+        }
 
-        #region AddEntity
+        #endregion
+
+        #region AddEntityToDatabase
         public bool Any()
         {
             return DbContext.Set<T>().Any();
+        }
+        public async Task<T> AddAndSaveChangesAsync(T entity)
+        {
+            return await DoActionAndSaveChangesAsync(_dbSet.Add, entity);
         }
 
         #endregion
@@ -63,6 +74,14 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
             }
             DbContext.Entry(entries).State = EntityState.Detached;
             return DbContext.SaveChangesAsync();
+        }
+
+        // PRIVATE METHODS
+        private async Task<T> DoActionAndSaveChangesAsync(Func<T, EntityEntry<T>> method, T entity)
+        {
+            var ent = method(entity).Entity;
+            await DbContext.SaveChangesAsync();
+            return ent;
         }
 
     }

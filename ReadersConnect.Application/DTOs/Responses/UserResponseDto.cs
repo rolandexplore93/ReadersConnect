@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReadersConnect.Application.Dtos
+namespace ReadersConnect.Application.DTOs.Responses
 {
-    public class UserDto
+    public class UserResponseDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
