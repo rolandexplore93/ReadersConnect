@@ -120,11 +120,14 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 
 //builder.Services.AddAuthorizationPolicies();
 
-builder.Services.AddAutoMapper(typeof(ReadersConnect.Application.Automapper.MappingConfig), typeof(MappingConfig));
+//builder.Services.AddAutoMapper(typeof(ReadersConnect.Application.Automapper.MappingConfig), typeof(MappingConfig));
+//builder.Services.AddAutoMapper(p => p.AddProfile(MappingConfig));
+builder.Services.AddAutoMapper(typeof(MappingConfig));
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //try
 //{
-    Log.Information("Starting ReadersConnect application...");
+Log.Information("Starting ReadersConnect application...");
 
     var app = builder.Build();
 

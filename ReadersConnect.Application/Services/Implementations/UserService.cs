@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
+using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ReadersConnect.Application.BaseInterfaces.IUnitOfWork;
 using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Application.DTOs.Responses;
+using ReadersConnect.Application.Helpers.Common;
 using ReadersConnect.Application.Services.Interfaces;
 using ReadersConnect.Domain.Models;
 using ReadersConnect.Domain.Models.Identity;
@@ -32,7 +36,7 @@ namespace ReadersConnect.Application.Services.Implementations
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper), "AutoMapper is not properly injected.");
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -176,6 +180,150 @@ namespace ReadersConnect.Application.Services.Implementations
         {
             var existingPermission = await _unitOfWork.GetRepository<Permission>().GetSingleAsync(p => p.PermissionName == permissionName);
             return existingPermission != null;
+        }
+
+        public async Task<NoDataAPIResponse> DeletePermissionAsync(int permissionId)
+        {
+            try
+            {
+                if (permissionId == 0)
+                {
+                    return NoDataAPIResponse.FailedResult("Invalid permission id.", HttpStatusCode.BadRequest);
+                }
+
+                var permission = await _unitOfWork.GetRepository<Permission>().GetSingleAsync(p => p.Id == permissionId);
+
+                if (permission == null)
+                {
+                    return NoDataAPIResponse.FailedResult("Permission not found.", HttpStatusCode.NotFound);
+                }
+
+                _unitOfWork.GetRepository<Permission>().Remove(permission);
+                _unitOfWork.SaveChanges();
+                return NoDataAPIResponse.SuccessResult("Permission deleted successfully.");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error occured: {Errors}", ex.Message);
+                return NoDataAPIResponse.FailedResult($"Error occured: {ex.Message}", HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<NoDataAPIResponse> AssignRoleToUserAsync(AssignRoleRequestDTO request)
+        {
+            try
+            {
+                // Get user by id
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetSingleAsync(u => u.Id == request.UserId);
+                if (user == null)
+                {
+                    _logger.LogWarning("User ID {UserId} not found", request.UserId);
+                    return NoDataAPIResponse.FailedResult("User not found", HttpStatusCode.NotFound);
+                }
+
+                // Check if the role exists
+                var roleExists = await _roleManager.RoleExistsAsync(request.RoleName);
+                if (!roleExists)
+                {
+                    _logger.LogWarning("{RoleName} not found", request.RoleName);
+                    return NoDataAPIResponse.FailedResult($"{request.RoleName} not found", HttpStatusCode.NotFound);
+                }
+
+                // Check if the user already has this role
+                var userHasRole = await _userManager.IsInRoleAsync(user, request.RoleName);
+                if (userHasRole)
+                {
+                    _logger.LogWarning("User already has access to {RoleName} role:", request.RoleName);
+                    return NoDataAPIResponse.FailedResult($"User already has access to {request.RoleName} role:", HttpStatusCode.Conflict);
+                }
+
+                // Assign the role to the user
+                var result = await _userManager.AddToRoleAsync(user, request.RoleName);
+                if (!result.Succeeded)
+                {
+                    // Log each error from Identity
+                    foreach (var error in result.Errors)
+                    {
+                        _logger.LogError("Error assigning role: {Error}", error.Description);
+                    }
+                    return NoDataAPIResponse.FailedResult("Failed to assign role", HttpStatusCode.InternalServerError);
+                }
+
+                _logger.LogInformation("Assigned role '{RoleName}' to user '{UserId}'", request.RoleName, request.UserId);
+                return NoDataAPIResponse.SuccessResult("Role assigned successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred while assigning role: {Message}", ex.Message);
+                return NoDataAPIResponse.FailedResult("An error occurred while assigning role", HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<NoDataAPIResponse> RegisterMembersAsync(RegisterUserRequestDTO requestDTO)
+        {
+            try
+            {
+                // Check if user exists using their username or email address
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetSingleAsync(u => u.UserName == requestDTO.UserName || u.Email == requestDTO.Email);
+                if (user != null)
+                {
+                    _logger.LogWarning("User already exists {UserName}",  requestDTO.UserName + requestDTO.Email);
+                    return NoDataAPIResponse.FailedResult("Your already have an account with us. Please contact admin to reset your password.", HttpStatusCode.Conflict);
+                }
+
+                // Map requestDTO to ApplicationUser
+                ApplicationUser mapUser = _mapper.Map<ApplicationUser>(requestDTO);
+                mapUser.IsActive = true;
+                mapUser.EmailConfirmed = true;
+                mapUser.PhoneNumberConfirmed = true;
+                mapUser.CreatedAt = DateTime.UtcNow;
+                mapUser.ModifiedAt = DateTime.UtcNow;
+
+                // Create new user member
+                var result = await _userManager.CreateAsync(mapUser, requestDTO.Password);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        _logger.LogError("Error creating user: {Error}", error.Description);
+                    }
+
+                    // Handle result.Errors and send to user
+                    var errorMessages = result.Errors.Select(error => error.Description).ToList();
+                    string combinedErrors = string.Join("; ", errorMessages);
+                    return NoDataAPIResponse.FailedResult($"Failed to create user. {combinedErrors}", HttpStatusCode.InternalServerError);
+                }
+
+                // Create "Member" role if it does not exist
+                if (!await _roleManager.RoleExistsAsync("Member"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Member"));
+                }
+
+                // Assign "Member" role to new user
+                var roleResult = await _userManager.AddToRoleAsync(mapUser, "Member");
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                    {
+                        _logger.LogError("Error assigning role to user: {Error}", error.Description);
+                    }
+
+                    // Handle result.Errors and send to user
+                    var errorMessages = result.Errors.Select(error => error.Description).ToList();
+                    string combinedErrors = string.Join("; ", errorMessages);
+                    return NoDataAPIResponse.FailedResult($"Failed to assign role to user. {combinedErrors}", HttpStatusCode.InternalServerError);
+                }
+
+                _logger.LogInformation("User {UserName} registered successfully with role 'Member'", mapUser.UserName);
+                return NoDataAPIResponse.SuccessResult("Your account has been created.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("An error occurred setting new user account {Message}", ex.Message);
+                return NoDataAPIResponse.FailedResult("An error setting up your account. Please contact Support.", HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

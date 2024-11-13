@@ -50,6 +50,14 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
 
         #endregion
 
+        #region Remove
+        public T Remove(T entity)
+        {
+            return _dbSet.Remove(entity).Entity;
+        }
+
+        #endregion
+
         public void Dispose()
         {
             DbContext?.Dispose();

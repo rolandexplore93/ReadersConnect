@@ -111,5 +111,67 @@ namespace ReadersConnect.Web.Controllers
             }
             return Ok(result);
         }
+
+        [SwaggerOperation(Summary = "Description: This endpoint allows super admin and library manager to delete permission")]
+        //[Authorize]
+        [HttpDelete("permission/{permissionId}")]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeletePermissionAsync(int permissionId)
+        {
+            var result = await _userService.DeletePermissionAsync(permissionId);
+
+            if (result.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                return NotFound(result);
+            }
+
+            if (result.HttpStatusCode != HttpStatusCode.OK || result.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [SwaggerOperation(Summary = "Description: This endpoint allows admin to assign role to a user")]
+        //[Authorize]
+        [HttpPost("assign-role")]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> AssignRoleToUserAsync([FromBody] AssignRoleRequestDTO request)
+        {
+            var result = await _userService.AssignRoleToUserAsync(request);
+
+            if (result.HttpStatusCode == HttpStatusCode.NotFound)
+                return NotFound(result);
+
+            if (result.HttpStatusCode == HttpStatusCode.Conflict)
+                return Conflict(result);
+
+            if (result.HttpStatusCode != HttpStatusCode.OK)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("Register")]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> RegisterMembersAsync([FromBody] RegisterUserRequestDTO requestDTO)
+        {
+            var result = await _userService.RegisterMembersAsync(requestDTO);
+
+            if (result.HttpStatusCode == HttpStatusCode.Conflict)
+                return Conflict(result);
+
+            if (result.HttpStatusCode != HttpStatusCode.OK)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

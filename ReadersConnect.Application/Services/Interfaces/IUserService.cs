@@ -15,5 +15,9 @@ namespace ReadersConnect.Application.Services.Interfaces
         Task<APIResponse<List<UserResponseDto>>> GetUsersAsync();
         Task<NoDataAPIResponse> AddRoleAsync(CreateRoleRequestDto requestDTO);
         Task<NoDataAPIResponse> AddPermissionAsync(CreatePermissionRequestDto requestDTO);
+        Task<NoDataAPIResponse> DeletePermissionAsync(int permissionId);
+        Task<NoDataAPIResponse> AssignRoleToUserAsync(AssignRoleRequestDTO requestDTO);
+        Task<NoDataAPIResponse> RegisterMembersAsync(RegisterUserRequestDTO requestDTO);
+
     }
 }

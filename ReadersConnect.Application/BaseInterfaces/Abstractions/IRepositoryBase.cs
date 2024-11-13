@@ -12,5 +12,6 @@ namespace ReadersConnect.Application.BaseInterfaces.Abstractions
         long Count(Expression<Func<T, bool>> expression);
         Task<int> SaveChangesAsync();
         Task<T> AddAndSaveChangesAsync(T entity);
+        T Remove(T entity);
     }
 }

@@ -12,6 +12,7 @@ namespace ReadersConnect.Application.Automapper
             CreateMap<ApplicationUser, RegisterStaffRequestDTO>().ReverseMap();
             CreateMap<ApplicationUser, StaffRegistrationResponse>().ReverseMap();
             CreateMap<ApplicationUser, UserResponseDto>().ReverseMap();
+            CreateMap<ApplicationUser, RegisterUserRequestDTO>().ReverseMap();
         }
     }
 }
