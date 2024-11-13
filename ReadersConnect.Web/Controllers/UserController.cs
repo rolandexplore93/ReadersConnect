@@ -157,6 +157,7 @@ namespace ReadersConnect.Web.Controllers
             return Ok(result);
         }
 
+        [SwaggerOperation(Summary = "Description: This endpoint allows members to register on the platform")]
         [HttpPost("Register")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]

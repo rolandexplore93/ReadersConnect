@@ -23,6 +23,7 @@ namespace ReadersConnect.Web.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBookService, BookService>();
             //services.AddScoped<IAdminService, AdminService>();
 
 

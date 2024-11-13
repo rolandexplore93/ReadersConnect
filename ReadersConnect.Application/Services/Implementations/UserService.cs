@@ -108,6 +108,13 @@ namespace ReadersConnect.Application.Services.Implementations
             try
             {
                 var users = await _unitOfWork.GetRepository<ApplicationUser>().GetAllAsync();
+                
+                if (!users.Any())
+                {
+                    _logger.LogWarning("No User found");
+                    return APIResponse<List<UserResponseDto>>.FailedResult($"No Users Registered yet. Contact Admin for further information.", HttpStatusCode.NotFound);
+                }
+
                 List<UserResponseDto> mappedUsers = _mapper.Map<List<UserResponseDto>>(users);
                 return APIResponse<List<UserResponseDto>>.SuccessResult(mappedUsers, "Users retrieved successful.");
             }
