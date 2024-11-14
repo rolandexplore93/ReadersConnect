@@ -13,5 +13,4 @@ namespace ReadersConnect.Application.BaseInterfaces.IUnitOfWork
         IRepositoryBase<TEntity> GetRepository<TEntity>() where TEntity : class;
         int SaveChanges();
     }
-
 }

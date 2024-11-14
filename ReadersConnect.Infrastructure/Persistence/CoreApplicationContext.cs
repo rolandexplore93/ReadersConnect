@@ -15,7 +15,12 @@ namespace ReadersConnect.Infrastructure.Persistence
         {
                 
         }
+
+        // Tables creation in the database using DbSet<>
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<BookRequest> BookRequests { get; set; }
+        public DbSet<BorrowingRecord> BorrowingRecords { get; set; }
         public DbSet<Permission> Permissions {  get; set; } 
 
         protected override void OnModelCreating(ModelBuilder builder)

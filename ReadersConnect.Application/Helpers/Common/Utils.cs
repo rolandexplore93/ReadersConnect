@@ -39,12 +39,5 @@
 
         //APPLICATION CODE HTTP STSTUS CODES
         // public const int HttpStatusCode_OK = StatusCodes.;
-
-        //USER ROLES
-        //public const string Role_Admin = "Admin";
-        //public const string Role_Developer = "Developer";
-        //public const string Role_Manager = "Property Manager";
-        //public const string Role_Manager_Asst = "Property Manager Assistant";
-        //public const string Role_Renter = "Renter";
     }
 }

@@ -19,13 +19,13 @@
     <PackageReference Include="RestSharp" Version="112.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\Attributes\" />
     <Folder Include="EmailTemplates\" />
+    <Folder Include="Swagger\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 
