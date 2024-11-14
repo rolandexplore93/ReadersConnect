@@ -52,45 +52,6 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
             });
 
             return tokenHandler.WriteToken(token);
-
-
-            //    // If user is found, generate login token with JwtSecurityTokenHandler
-            //    var roles = await _userManager.GetRolesAsync(user);
-
-            //    if (roles.Any())
-            //    {
-            //        var claims = new List<Claim>
-            //{
-            //    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            //    new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
-            //    new Claim(ClaimTypes.Name, user.UserName.ToString()),
-            //};
-
-            //        // Add all roles as claims
-            //        //claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-            //        foreach (var role in roles)
-            //        {
-            //            claims.Add(new Claim(ClaimTypes.Role, role));
-            //        }
-
-            //        // Key and credentials for signing
-            //        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
-            //        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            //        // Create the token
-            //        var token = new JwtSecurityToken(
-            //            issuer: "https://readersconnect-api.com",
-            //            audience: "https://test-readersconnect-api.com",
-            //            claims: claims,
-            //            expires: DateTime.UtcNow.AddMinutes(60),
-            //            signingCredentials: creds
-            //        );
-
-            //        return new JwtSecurityTokenHandler().WriteToken(token);
-            //    }
-
-            //    return string.Empty;
-
         }
     }
 }
