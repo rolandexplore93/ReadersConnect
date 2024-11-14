@@ -96,6 +96,6 @@ The API should be running on https://localhost:7002/index.html or http://localho
 ![image](https://github.com/user-attachments/assets/96f0f5f2-f3fe-464a-a021-f45ec3321bdd)
 
 ## API Testing via Swagger
-The API includes Swagger for easy testing of endpoints. Open a browser and navigate to https://localhost:7002/ to access Swagger UI. Use the Swagger interface to explore available endpoints and test them.
+The API includes Swagger for easy testing of endpoints. Open a browser and navigate to https://localhost:7002/index/html to access Swagger UI. Use the Swagger interface to explore available endpoints and test them.
 ![image](https://github.com/user-attachments/assets/76827ecc-dc10-4b94-b52f-ad4277b96878)
 
