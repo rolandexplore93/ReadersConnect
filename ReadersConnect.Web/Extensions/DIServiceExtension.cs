@@ -28,6 +28,8 @@ namespace ReadersConnect.Web.Extensions
             // Add Repository Injections Here
             services.AddScoped<IDbInitializer, DbInitializer>();
             services.AddScoped<IUnitOfWork, UnitOfWork<CoreApplicationContext>>();
+
+           
         }
     }
 }

@@ -93,6 +93,10 @@ try
 
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
+    
+    // Seed data in the database
+    builder.Services.AddScoped<SeedDataIntoDb>();
+
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -130,6 +134,8 @@ try
             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             dbInitializer.InitializeDatabase();
             await dbInitializer.SeedSuperAdminUserAsync();
+            var seedDataIntoDB = scope.ServiceProvider.GetRequiredService<SeedDataIntoDb>();
+            await seedDataIntoDB.SeedAsync();
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Application.DTOs.Responses;
 using ReadersConnect.Application.Services.Implementations;
 using ReadersConnect.Application.Services.Interfaces;
+using ReadersConnect.Web.Extensions.Attributes;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using System.Security.Claims;
@@ -21,8 +21,8 @@ namespace ReadersConnect.Web.Controllers
             _userService = userService;
         }
 
-        [SwaggerOperation(Summary = "Description: This endpoint allows super admin to create a staff account")]
-        //[Authorize(Roles = "SuperAdmin")]
+        [SwaggerOperation(Summary = "Description: This endpoint allows super admin and librarian to create library staff account")]
+        [Authorize("SuperAdmin", "Librarian")]
         [HttpPost("RegisterStaff")]
         [ProducesResponseType(typeof(APIResponse<StaffRegistrationResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
@@ -30,7 +30,6 @@ namespace ReadersConnect.Web.Controllers
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> RegisterStaffAsync([FromBody] RegisterStaffRequestDTO requestDTO)
         {
-            // Call LoginAsync method from AuthService
             var result = await _userService.RegisterStaffAsync(requestDTO);
 
             if (result.HttpStatusCode == HttpStatusCode.Conflict)
@@ -46,7 +45,8 @@ namespace ReadersConnect.Web.Controllers
             return Ok(result);
         }
 
-        [SwaggerOperation(Summary = "Description: This endpoint allows super admin to get the list of all users")]
+        [SwaggerOperation(Summary = "Description: This endpoint allows library staff to get the list of all registered users")]
+        [Authorize("SuperAdmin", "Librarian", "LibrarianAssistant")]
         [HttpGet("GetUsers")]
         [ProducesResponseType(typeof(APIResponse<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(APIResponse<string>), StatusCodes.Status400BadRequest)]
@@ -69,7 +69,7 @@ namespace ReadersConnect.Web.Controllers
         }
 
         [SwaggerOperation(Summary = "Description: This endpoint allows super admin and library manager to add roles to database")]
-        //[Authorize]
+        [Authorize("SuperAdmin", "Librarian")]
         [HttpPost("AddRole")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
@@ -91,7 +91,7 @@ namespace ReadersConnect.Web.Controllers
         }
 
         [SwaggerOperation(Summary = "Description: This endpoint allows super admin and library manager to add permission to database")]
-        //[Authorize]
+        [Authorize("SuperAdmin", "Librarian")]
         [HttpPost("AddPermission")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
@@ -113,7 +113,7 @@ namespace ReadersConnect.Web.Controllers
         }
 
         [SwaggerOperation(Summary = "Description: This endpoint allows super admin and library manager to delete permission")]
-        //[Authorize]
+        [Authorize("SuperAdmin", "Librarian")]
         [HttpDelete("permission/{permissionId}")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
@@ -134,8 +134,8 @@ namespace ReadersConnect.Web.Controllers
             return Ok(result);
         }
 
-        [SwaggerOperation(Summary = "Description: This endpoint allows admin to assign role to a user")]
-        //[Authorize]
+        [SwaggerOperation(Summary = "Description: This endpoint allows admin and libraian to assign role to a user")]
+        [Authorize("SuperAdmin", "Librarian")]
         [HttpPost("assign-role")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
@@ -157,7 +157,7 @@ namespace ReadersConnect.Web.Controllers
             return Ok(result);
         }
 
-        [SwaggerOperation(Summary = "Description: This endpoint allows members to register on the platform")]
+        [SwaggerOperation(Summary = "Description: This endpoint allows users to register on the platform and become a library member")]
         [HttpPost("Register")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
@@ -175,8 +175,8 @@ namespace ReadersConnect.Web.Controllers
             return Ok(result);
         }
 
-        [SwaggerOperation(Summary = "Description: This endpoint allows user to update their information")]
-        //[Authorize]
+        [SwaggerOperation(Summary = "Description: This endpoint allows users to update their information")]
+        [Authorize("SuperAdmin", "Librarian", "LibrarianAssistant", "Member")]
         [HttpPut("users/{userId}")]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
