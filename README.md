@@ -92,7 +92,7 @@ Please comment out the data seeding call once your data has been added to the da
 ![image](https://github.com/user-attachments/assets/8433c007-867d-4422-8bbe-855eff4c8491)
 
 ## start the application
-The API should be running on https://localhost:7002 or http://localhost:5005 by default.
+The API should be running on https://localhost:7002/index.html or http://localhost:5005/index.html by default.
 ![image](https://github.com/user-attachments/assets/96f0f5f2-f3fe-464a-a021-f45ec3321bdd)
 
 ## API Testing via Swagger
