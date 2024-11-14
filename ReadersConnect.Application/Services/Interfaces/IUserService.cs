@@ -1,5 +1,6 @@
 ﻿using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Application.DTOs.Responses;
+using ReadersConnect.Domain.Models.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace ReadersConnect.Application.Services.Interfaces
         Task<NoDataAPIResponse> DeletePermissionAsync(int permissionId);
         Task<NoDataAPIResponse> AssignRoleToUserAsync(AssignRoleRequestDTO requestDTO);
         Task<NoDataAPIResponse> RegisterMembersAsync(RegisterUserRequestDTO requestDTO);
+        Task<NoDataAPIResponse> EditUserAsync(string userId, EditUserRequestDTO requestDTO);
+        Task<ApplicationUser?> GetById(string id);
 
     }
 }

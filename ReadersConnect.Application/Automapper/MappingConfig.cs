@@ -16,6 +16,8 @@ namespace ReadersConnect.Application.Automapper
             CreateMap<ApplicationUser, RegisterUserRequestDTO>().ReverseMap();
             CreateMap<Book, AddBookRequestDTO>().ReverseMap();
             CreateMap<Book, BookResponseDto>().ReverseMap();
+            CreateMap<BookRequest, BookRequestDTO>().ReverseMap();
+            CreateMap<BookRequest, BookRequestResponseDto>().ReverseMap();
         }
     }
 }

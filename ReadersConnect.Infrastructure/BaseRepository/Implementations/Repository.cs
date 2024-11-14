@@ -4,6 +4,7 @@ using ReadersConnect.Domain.Models;
 using System.Linq.Expressions;
 using Mapster;
 using ReadersConnect.Application.BaseInterfaces.Abstractions;
+using System.Collections.Generic;
 
 namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
 {
@@ -18,18 +19,50 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
         }
 
         #region GetEntity
-        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression)
+        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression, string? includeProperties = null)
         {
-            return await GetAll(expression).FirstOrDefaultAsync();
+            //return await GetAll(expression).FirstOrDefaultAsync();
+
+            IQueryable<T> query = _dbSet;
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
         public IQueryable<T> GetAll(Expression<Func<T, bool>> expression)
         {
             return _dbSet.Where(expression);
         }
 
-        public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>> expression)
+        public async Task<IReadOnlyList<T>> GetAllAsync(Expression<Func<T, bool>>? expression, string? includeProperties = null)
         {
-            return await _dbSet.Where(expression).ToListAsync();
+            IQueryable<T> query = _dbSet;
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+
+            return await query.ToListAsync();
         }
         public async Task<IReadOnlyList<T>> GetAllAsync()
         {

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ReadersConnect.Application.DTOs.Requests;
 using ReadersConnect.Application.Helpers.Configuration;
+
+//using ReadersConnect.Application.Helpers.Configuration;
 using ReadersConnect.Application.Services.Interfaces;
 using ReadersConnect.Domain.Models.Identity;
 using System;
@@ -20,81 +23,74 @@ namespace ReadersConnect.Infrastructure.BaseRepository.Implementations
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AppSettings _appSettings;
         private string? _secretKey;
-        private string? _Issuer;
-        //private string? _Audience;
 
-        public JwtTokenService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public JwtTokenService(IConfiguration configuration, UserManager<ApplicationUser> userManager, IOptions<AppSettings> appSettings)
         {
             _configuration = configuration;
             _userManager = userManager;
-            //_secretKey = _configuration.GetValue<string>("Jwt:SigningKey");
+            _appSettings = appSettings.Value;
             _secretKey = _configuration.GetValue<string>("JWTsettings:Secret");
-            
-            //_Issuer = _configuration.GetValue<string>("Jwt:Issuer");
-            //_Audience = _configuration.GetValue<string>("Jwt:ValidAudience");
         }
-        public async Task<string> GenerateTokenAsync(ApplicationUser user, string jwtTokenId)
+        public async Task<string> GenerateTokenAsync(ApplicationUser user)
         {
-            // If user is found, generate login token with JwtSecurityTokenHandler
-            var roles = await _userManager.GetRolesAsync(user);
 
-            if (roles.Any())
+            //Generate token that is valid for 7 days
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = await Task.Run(() =>
             {
-                var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
-            new Claim(ClaimTypes.Name, user.UserName.ToString()),
-        };
 
-                // Add all roles as claims
-                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+                    Expires = DateTime.UtcNow.AddMinutes(60),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                return tokenHandler.CreateToken(tokenDescriptor);
+            });
 
-                // Key and credentials for signing
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            return tokenHandler.WriteToken(token);
 
-                // Create the token
-                var token = new JwtSecurityToken(
-                    issuer: "https://readersconnect-api.com",  // Ensure this matches the configuration
-                    audience: "https://test-readersconnect-api.com",  // Ensure this matches the configuration
-                    claims: claims,
-                    expires: DateTime.UtcNow.AddMinutes(60),
-                    signingCredentials: creds
-                );
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
-            }
+            //    // If user is found, generate login token with JwtSecurityTokenHandler
+            //    var roles = await _userManager.GetRolesAsync(user);
 
-            return string.Empty;
+            //    if (roles.Any())
+            //    {
+            //        var claims = new List<Claim>
+            //{
+            //    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            //    new Claim(JwtRegisteredClaimNames.Jti, jwtTokenId),
+            //    new Claim(ClaimTypes.Name, user.UserName.ToString()),
+            //};
+
+            //        // Add all roles as claims
+            //        //claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            //        foreach (var role in roles)
+            //        {
+            //            claims.Add(new Claim(ClaimTypes.Role, role));
+            //        }
+
+            //        // Key and credentials for signing
+            //        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            //        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            //        // Create the token
+            //        var token = new JwtSecurityToken(
+            //            issuer: "https://readersconnect-api.com",
+            //            audience: "https://test-readersconnect-api.com",
+            //            claims: claims,
+            //            expires: DateTime.UtcNow.AddMinutes(60),
+            //            signingCredentials: creds
+            //        );
+
+            //        return new JwtSecurityTokenHandler().WriteToken(token);
+            //    }
+
+            //    return string.Empty;
 
         }
-
-        //public bool ValidateToken(string token)
-        //{
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var key = Encoding.ASCII.GetBytes(_secretKey); ;
-
-        //    try
-        //    {
-        //        tokenHandler.ValidateToken(token, new TokenValidationParameters
-        //        {
-        //            ValidateIssuerSigningKey = true,
-        //            IssuerSigningKey = new SymmetricSecurityKey(key),
-        //            ValidateIssuer = true,
-        //            ValidIssuer = _Issuer,
-        //            ValidateAudience = true,
-        //            ValidAudience = _Audience,
-        //            ClockSkew = TimeSpan.Zero
-        //        }, out SecurityToken validatedToken);
-
-        //        return validatedToken != null;
-        //    }
-        //    catch
-        //    {
-        //        return false;
-        //    }
-        //}
     }
 }

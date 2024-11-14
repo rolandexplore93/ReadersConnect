@@ -24,15 +24,10 @@ namespace ReadersConnect.Web.Extensions
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBookService, BookService>();
-            //services.AddScoped<IAdminService, AdminService>();
-
 
             // Add Repository Injections Here
             services.AddScoped<IDbInitializer, DbInitializer>();
             services.AddScoped<IUnitOfWork, UnitOfWork<CoreApplicationContext>>();
-
-            // Add Fluent Validator Injections Here
-            //services.AddTransient<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
         }
     }
 }

@@ -14,10 +14,11 @@ namespace ReadersConnect.Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BookingId { get; set; }
         public int RequestId { get; set; }
+        public DateTime ReturnedDate { get; set; }
         public string ApprovedBy { get; set; }
-        public DateTime ApprovedDate { get; set; }
+        public DateTime ApprovedDate { get; set; } = DateTime.UtcNow;
         public bool IsBookReturned { get; set; } = false;
-        public string BookReturnedConfirmedBy { get; set; }
+        public string? BookReturnedConfirmedBy { get; set; }
         public DateTime ActualReturnedDate { get; set; }
     }
 }

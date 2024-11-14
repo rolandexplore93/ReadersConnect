@@ -10,16 +10,13 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using ReadersConnect.Application.Automapper;
 using ReadersConnect.Application.Helpers.Common;
+using ReadersConnect.Application.Helpers.Configuration;
 using ReadersConnect.Infrastructure.DbInitializer;
-using ReadersConnect.Infrastructure.ExternalServiceExtensions;
 using ReadersConnect.Infrastructure.Persistence;
 using ReadersConnect.Web.Extensions;
 using ReadersConnect.Web.Extensions.Middlewares;
-using ReadersConnect.Web.Swagger;
 using Serilog;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
-using static ReadersConnect.Web.Swagger.SwaggerExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,103 +35,69 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 
-//builder.Services.AddSingleton<ErrorHandlingMiddleWare>();
 builder.Services.AddDbContextAndConfigurations(environment, configuration);
 builder.Services.AddCors(c =>{ c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());});
 builder.Services.AddDependencyInjection();
-
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SchemaFilter<EnumSchemaFilter>();
-//});
-
-
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGenNewtonsoftSupport();
-
-var key = Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("JWTsettings:Secret"));
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration.GetValue<string>("JWTsettings:ValidIssuer"),
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration.GetValue<string>("JWTsettings:ValidAudience"),
-        ValidateLifetime = true,
-    };
-});
-
-builder.Services.AddAuthorization();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please insert JWT with Bearer into field",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-    {
-        new OpenApiSecurityScheme
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
-        },
-        Array.Empty<string>()
-    }
-    });
-});
-
-
-//builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-//builder.Services.AddSwaggerGen();
-
-
-//builder.Services.AddAuth(configuration);
-
-
-//builder.Services.AddJWT(configuration);
-
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.Converters.Add(new StringEnumConverter());
 });
 
 //builder.Services.AddAuthorizationPolicies();
-
-//builder.Services.AddAutoMapper(typeof(ReadersConnect.Application.Automapper.MappingConfig), typeof(MappingConfig));
-//builder.Services.AddAutoMapper(p => p.AddProfile(MappingConfig));
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-//try
-//{
-Log.Information("Starting ReadersConnect application...");
+try
+{
+    Log.Information("Starting ReadersConnect application...");
+
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddSwaggerGen(swagger =>
+    {
+        //This is to generate the Default UI of Swagger Documentation
+        swagger.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Version = "v1",
+            Title = "ReadersConnect System",
+            Description = "APIs to manage a book library for Educational Development Trust"
+        });
+    
+        //Enable authorization using Swagger (JWT)
+        swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+        });
+        swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+
+                }
+            });
+    });
+
+
+    builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
     {
-        //app.UseSwaggerAuthorized();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
@@ -149,10 +112,13 @@ Log.Information("Starting ReadersConnect application...");
 
     app.UseCors("AllowOrigin");
 
+    app.UseMiddleware<JwtMiddleware>();
+    //app.UseMiddleware(typeof(ErrorHandlingMiddleWare));
+
     app.UseAuthentication();
+
     app.UseAuthorization();
 
-    app.UseMiddleware(typeof(ErrorHandlingMiddleWare));
     app.MapControllers();
 
     app.Run();
@@ -166,12 +132,12 @@ Log.Information("Starting ReadersConnect application...");
             await dbInitializer.SeedSuperAdminUserAsync();
         }
     }
-//}
-//catch (Exception ex)
-//{
-//    Log.Fatal($"Error occured starting the application: {ex.Message}");
-//}
-//finally
-//{
-//    Log.CloseAndFlush();
-//}
+}
+catch (Exception ex)
+{
+    Log.Fatal($"Error occured starting the application: {ex.Message}");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -13,6 +13,9 @@ namespace ReadersConnect.Application.Services.Interfaces
     {
         Task<NoDataAPIResponse> AddBookAsync(AddBookRequestDTO requestDTO);
         Task<APIResponse<List<BookResponseDto>>> GetBooksAsync();
-
+        Task<APIResponse<BookRequestResponseDto>> RequestBookAsync(BookRequestDTO requestDto);
+        Task<APIResponse<List<BookRequestResponseDto>>> GetAllBookRequestsAsync();
+        Task<APIResponse<BookRequestResponseDto>> GetSingleBookRequestAsync(int bookId);
+        Task<NoDataAPIResponse> ApproveOrRejectBookRequestAsync(ApproveOrRejectBookRequestDTO requestDto);
     }
 }

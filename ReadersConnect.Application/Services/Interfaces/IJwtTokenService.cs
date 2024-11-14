@@ -9,7 +9,6 @@ namespace ReadersConnect.Application.Services.Interfaces
 {
     public interface IJwtTokenService
     {
-        Task<string> GenerateTokenAsync(ApplicationUser user, string tokenId);
-        //bool ValidateToken(string token);
+        Task<string> GenerateTokenAsync(ApplicationUser user);
     }
 }

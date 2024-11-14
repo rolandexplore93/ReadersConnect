@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReadersConnect.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using ReadersConnect.Infrastructure.Persistence;
 namespace ReadersConnect.Infrastructure.Migrations
 {
     [DbContext(typeof(CoreApplicationContext))]
-    partial class CoreApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20241113134001_AddFKNavigationPropertyToBookRequestTable")]
+    partial class AddFKNavigationPropertyToBookRequestTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,6 +256,7 @@ namespace ReadersConnect.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("BookReturnedConfirmedBy")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsBookReturned")
@@ -260,9 +264,6 @@ namespace ReadersConnect.Infrastructure.Migrations
 
                     b.Property<int>("RequestId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("ReturnedDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("BookingId");
 

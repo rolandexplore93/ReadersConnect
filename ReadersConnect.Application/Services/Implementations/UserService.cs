@@ -332,5 +332,39 @@ namespace ReadersConnect.Application.Services.Implementations
                 return NoDataAPIResponse.FailedResult("An error setting up your account. Please contact Support.", HttpStatusCode.InternalServerError);
             }
         }
+
+        public async Task<NoDataAPIResponse> EditUserAsync(string userId, EditUserRequestDTO requestDTO)
+        {
+            try
+            {
+                // Retrieve the user by ID
+                var user = await _unitOfWork.GetRepository<ApplicationUser>().GetSingleAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    return NoDataAPIResponse.FailedResult("User not found.", HttpStatusCode.NotFound);
+                }
+
+                // Update user information
+                user.Address = requestDTO.Address ?? user.Address;
+                user.City = requestDTO.City ?? user.City;
+                user.PostCode = requestDTO.PostCode ?? user.Email;
+
+                // Save changes
+                _unitOfWork.SaveChanges();
+
+                return NoDataAPIResponse.SuccessResult("User information updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error occurred while updating user information: {Error}", ex.Message);
+                return NoDataAPIResponse.FailedResult("An error occurred while updating the information.", HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<ApplicationUser?> GetById(string id)
+        {
+            return await _unitOfWork.GetRepository<ApplicationUser>().GetSingleAsync(x => x.Id == id);
+        }
     }
 }

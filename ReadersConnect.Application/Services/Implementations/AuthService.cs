@@ -53,8 +53,8 @@ namespace ReadersConnect.Application.Services.Implementations
 
                 // Generete login access token from _jwtTokenService
                 _logger.LogInformation("Generating access token...");
-                var tokenId = $"JTI{Guid.NewGuid()}";
-                string token = await _jwtTokenService.GenerateTokenAsync(user, tokenId);
+                //var tokenId = $"JTI{Guid.NewGuid()}";
+                string token = await _jwtTokenService.GenerateTokenAsync(user);
 
                 if (string.IsNullOrEmpty(token))
                 {

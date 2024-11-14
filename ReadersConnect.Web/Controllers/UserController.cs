@@ -174,5 +174,27 @@ namespace ReadersConnect.Web.Controllers
 
             return Ok(result);
         }
+
+        [SwaggerOperation(Summary = "Description: This endpoint allows user to update their information")]
+        //[Authorize]
+        [HttpPut("users/{userId}")]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoDataAPIResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> EditUserAsync(string userId, [FromBody] EditUserRequestDTO requestDTO)
+        {
+            var result = await _userService.EditUserAsync(userId, requestDTO);
+
+            if (result.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                return NotFound(result);
+            }
+
+            if (result.HttpStatusCode != HttpStatusCode.OK || result.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }
